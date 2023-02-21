@@ -4,50 +4,63 @@ import React, { useState, useEffect, useReducer } from 'react';
 // ************************************************************************************************************************ //
 // ARRAY OF STORY OBJECTS (used to be local variable w/in App component, moved out; also used to be a "list" & a global variable)
 // ************************************************************************************************************************ //
-// "initialStories" created to allow manipulation of list. (Lesson 1.6, 1/26/23)
 
-const initialStories = [
-  {
-    title: 'React',
-    url: 'https://reactjs.org/',
-    author: 'Jordan Walke',
-    topic: 'Reactionaries',
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://redux.js.org/',
-    author: 'Dan Abramov, Andrew Clark',
-    topic: 'Sentaries',
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-  {
-    title: 'Flummoxed',
-    url: 'https://life.js.org/',
-    author: "Brendan O'Connor",
-    topic: 'Life decisionaries',
-    num_comments: 17,
-    points: 5,
-    objectID: 2,
-  },
-];
+// ************************************************************************************************************************ //
+// ************************************************************************************************************************ //
+// COPY FILE & DELETE THIS PART AFTER FINISH THIS LESSON (before committing changes)
+// ************************************************************************************************************************ //
+// ************************************************************************************************************************ //
+
+// "initialStories" created to allow manipulation of list. (Lesson 1-6, 1/26/23); removed entirely in lesson 1-8.
+
+// const initialStories = [
+//   {
+//     title: 'React',
+//     url: 'https://reactjs.org/',
+//     author: 'Jordan Walke',
+//     topic: 'Reactionaries',
+//     num_comments: 3,
+//     points: 4,
+//     objectID: 0,
+//   },
+//   {
+//     title: 'Redux',
+//     url: 'https://redux.js.org/',
+//     author: 'Dan Abramov, Andrew Clark',
+//     topic: 'Sentaries',
+//     num_comments: 2,
+//     points: 5,
+//     objectID: 1,
+//   },
+//   {
+//     title: 'Flummoxed',
+//     url: 'https://life.js.org/',
+//     author: "Brendan O'Connor",
+//     topic: 'Life decisionaries',
+//     num_comments: 17,
+//     points: 5,
+//     objectID: 2,
+//   },
+// ];
 
 // ************************************************************************************************************************ //
 // ASYNC DATA FETCHING ///////////////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
 // Simulation of asynchronous data, will replace later w/real data from an API; "setTimeout" slightly delays the rendering of the list to simulate the real delay that would come w/a network request to a remote API (Lesson 1.7).
 
-const getAsyncStories = () =>
-  new Promise((resolve) =>
-    setTimeout(
-      () => resolve({ data: { stories: initialStories } }),
-      2000
-    )
-  );
+// const getAsyncStories = () =>
+//   new Promise((resolve) =>
+//     setTimeout(
+//       () => resolve({ data: { stories: initialStories } }),
+//       2000
+//     )
+//   );
+
+// ************************************************************************************************************************ //
+// ************************************************************************************************************************ //
+// COPY FILE & DELETE THIS PART AFTER FINISH THIS LESSON (before committing changes)
+// ************************************************************************************************************************ //
+// ************************************************************************************************************************ //
 
 // ************************************************************************************************************************ //
 // CUSTOM HOOK (useSemiPersistentState) ///////////////////////////////////////////////////////////////
@@ -108,27 +121,27 @@ const storiesReducer = (state, action) => {
       throw new Error();
   }
 };
+// ************************************************************************************************************************ //
+// API ENDPOINT
+
+const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
 // ************************************************************************************************************************ //
 // APP COMPONENT / FUNCTION //////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
 const App = () => {
   // ************************************************************************************************************************ //
-  // STATE: Various situations dealing with State below (also in "Custom Hook" above, near top)
-
-  // Managed the search feature's state
-  // PREVIOUS version (without custom hook):
-
-  // const [searchTerm, setSearchTerm] = React.useState(
-  //   // Sets default value to the value defined for the 'search' key in "localStorage.setItem" a few lines down (which is the most recent value typed into the search box); if there is no recent value, reads 'React'
-  //   localStorage.getItem('search') || 'React'
-  // );
+  // STATE (useState & useReducer): Various situations dealing with State below (also in "Custom Hook" above, near top)
 
   // NEW version of search feature's state (with custom hook, "useSemiPersistentState") (also sets default value to "React" if no recent value in search box)
   const [searchTerm, setSearchTerm] = useSemiPersistentState(
     'search',
     'React'
   );
+
+  // State updater, setUrl is updated when search button is clicked
+  const [url, setUrl] = useState(`${API_ENDPOINT}${searchTerm}`);
+
   // Returned values from  array are the current state (stories) and the state updater function (setStories).  (Lesson 1.6, 1/26/23, p. 88 in book); removed "initialStories" as initial state, replaced w/empty array (Lesson 1.7, p. 94); later in 1.7, turned to a useReducer hook, changing "setStories" to "dispatchStories," & passing it storiesReducer function from above; then merged others for loading & errors into useReducer hook.
   const [stories, dispatchStories] = useReducer(storiesReducer, {
     data: [],
@@ -136,26 +149,32 @@ const App = () => {
     isError: false,
   });
 
-  // // For dealing w/State when data is loading
-  // const [isLoading, setIsLoading] = useState(false);
-  // // For dealing w/State when errors
-  // const [isError, setIsError] = useState(false);
+  // ************************************************************************************************************************ //
+  // FETCH-RELATED
 
-  // useEffect hook to call getAsyncStories & resolve returned promise as a side-effect; and b/c has an empty dependency array, will only run after component runs for 1st time (Lesson 1.7); later in 1.7 changed setStories to dispatchStories & added type & payload.
-  useEffect(() => {
-    // This type is for loading
+  // Memoized handler for data fetching (1.8)
+  const handleFetchStories = React.useCallback(() => {
     dispatchStories({ type: loadingStories });
 
-    getAsyncStories()
+    fetch(url) // A - Fetch API used to make request, based on API & searchTerm--points to url useState function above
+      .then((response) => response.json()) // B - Translate response into JSON
       .then((result) => {
         dispatchStories({
           type: storiesSuccess,
-          payload: result.data.stories,
+          payload: result.hits, // C - Result to send to state reducer, following way data is structured in API
         });
       })
       // .catch is what happens if an error/exception is thrown from above code
       .catch(() => dispatchStories({ type: storiesFailure }));
-  }, []);
+  }, [url]);
+
+  // useEffect hook to call getAsyncStories & resolve returned promise as a side-effect; and b/c has an empty dependency array, will only run after component runs for 1st time (Lesson 1.7), but changed that to searchTerm dependency in 1.8; later in 1.7 changed setStories to dispatchStories & added type & payload. In. 1.8, added steps to search based on searchTerm, then changed to point to handleFetchStories above.
+  useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
+
+  // ************************************************************************************************************************ //
+  // DISMISS FUNCTION
 
   // Remove a story item ("story") with a given objectID from the story list if "Dismiss" button is clicked for an item ("item") with that same objectID (using button in Item component below) (Lesson 1.6, 1/26/23); in 1.7 changes setStories to dispatchStories for useReducer hook; also in 1.7 moved filter for this function into reducer function above.
   const handleRemoveStory = (item) => {
@@ -165,29 +184,24 @@ const App = () => {
     });
   };
 
-  // A ("callback function gets introduced" here says in textbook; seems A, B, & C together are the "callback handler," though could just be the same as the "callback function")
-  const handleSearch = (event) => {
-    // C (" 'calls back' to the place [the callback function] was introduced," says in textbook)
-    setSearchTerm(event.target.value);
+  // ************************************************************************************************************************ //
+  // SETTING & SUBMITTING SEARCH TERM
 
-    //Instructions: "...use the local storage to store the searchTerm accompanied by an identifier whenever a user types into the HTML input field"
-    localStorage.setItem('search', event.target.value);
+  // Callback function that sets search term based on input
+  const handleSearchInput = (event) => {
+    // Updates setSearchTerm in searchTerm state function above (useSemiPersistentState function spec.)
+    setSearchTerm(event.target.value);
   };
 
-  // To "filter the stories with the stateful searchTerm before passing them as list to the List component"
-  const searchedStories = stories.data.filter((story) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Temp console.log to show doesn't re-render since no .useState hook in this function
-  console.log('App renders');
-  console.log('searchTerm:', searchTerm);
+  // Handler for button submission, sets State above via setUrl
+  const handleSearchSubmit = () => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
+  };
 
   return (
     <div>
       <h1>My Hacker Stories</h1>
 
-      {/* // B (Below callback function "is used elsewhere" says in textbook--note this comment was previously repeated below in Search component, no longer) */}
       {/* ************************************************************************************************************************ */}
       {/*  INPUT WITH LABEL: Instantiation of <InputWithLabel/> Component */}
       {/* Below was previously instantiating a component called "Search," but to make component reusable, changed to "InputWithLabel" & defined the id & label attributes within it (they were previously defined within the Search component instead of in the instantiation); also changed "search" to "value" & "onSearch" to "onInputChange"--again, to make more broadly usable for different input situations. (Lesson 1.6, 1/11/23 update) */}
@@ -197,26 +211,35 @@ const App = () => {
         value={searchTerm}
         // Added isFocused as prop to pass below (1/24/23 update
         isFocused
-        // Think what we did here is make this into a prop that pulls down the handleSearch function above
-        onInputChange={handleSearch}
+        // // Think what we did here is make this into a prop that pulls down the handleSearch function above
+        // onInputChange={handleSearch}
+
+        // Prop to be used in search button (in place of the above, commented-out handler)
+        onInputChange={handleSearchInput}
       >
         <strong>Search: </strong>
       </InputWithLabel>
+
+      {/* Search button */}
+      <button
+        type="button"
+        disabled={!searchTerm}
+        onClick={handleSearchSubmit}
+      >
+        Submit
+      </button>
 
       <hr />
 
       {/* ************************************************************************************************************************ */}
       {/* LIST: Instantiation of <List/> Component - Draws from above filter so only shows stories that are searched */}
-      {/* Added onRemoveItem below (Lesson 1.6), & isError & isLoading (Lesson 1.7) */}
+      {/* Added onRemoveItem below (Lesson 1.6), & isError & isLoading (Lesson 1.7), then stories.data (Lesson 1.8) */}
       {stories.isError && <p>Something went wrong...</p>}
 
       {stories.isLoading ? (
         <p>Loading...</p>
       ) : (
-        <List
-          list={searchedStories}
-          onRemoveItem={handleRemoveStory}
-        />
+        <List list={stories.data} onRemoveItem={handleRemoveStory} />
       )}
     </div>
   );
@@ -240,8 +263,8 @@ const InputWithLabel = ({
   // A: Create a ref with React’s useRef Hook
   const inputRef = React.useRef();
 
-  // C: "...opt into React’s lifecycle with React’s useEffect Hook, performing the focus on the input field when the component renders (or its dependencies change)"--re: the latter, see dependency array below in brackets, [isFocused].
-  React.useEffect(() => {
+  // C: "...opt into React’s lifecycle with React’s useEffect Hook," focusing on the input field when the component renders, or its dependencies change--ie, when it's focused, as is shown in the dependency array below, [isFocused].
+  useEffect(() => {
     if (isFocused && inputRef.current) {
       // D: "... since the ref is passed to the input field’s ref attribute, its current property gives access to the element. Execute its focus programmatically as a side-effect, but only if isFocused is set AND the current property is existent"
       inputRef.current.focus();
@@ -250,7 +273,6 @@ const InputWithLabel = ({
   }, [isFocused]);
 
   return (
-    // Was able to use "React fragments," the <> and </> to wrap the elements below, instead of something like <div> tags had before; not exactly clear why this is that useful...
     // Changed from "{label}" below to "{children}" after placing "Search" in between <InputWithLabel> and a new closing </InputWithLabel> tag.
     <>
       <label htmlFor={id}>{children}</label>
@@ -278,7 +300,6 @@ const InputWithLabel = ({
 // ************************************************************************************************************************ //
 // Function pulls from Item function below to automatically populate aspects of each <li> item in <ul> below
 
-// NOTE: "Variation 2" commented versions below used Spread & Rest operators, just to learn them, but returned to less refactored version to make easier to understand & to avoid features which aren't familiar to everyone (see p. 67 for more).
 // Added onRemoveItem as prop below, to then pass to Item component (Lession 1.6, 1/26/23).
 
 const List = ({ list, onRemoveItem }) => (
@@ -286,8 +307,6 @@ const List = ({ list, onRemoveItem }) => (
   // console.log('List renders');
 
   <ul>
-    {/* Props can apparently be used here because the props parameter was passed above to the List function, AND as a way to access the "prop[ertie]s" (or props) of the parent App component (which I believe became a parent to List when List was instantiated within App); however, removed "props" before "list.map..." b/c did destructured version of props in the "function signature" for the List component above, thereby defining "list" as a property of the "props" object, ie, the List component (I believe) */}
-
     {/* ************************************************************************************************************************ */}
     {/* Instantiation of <Item/> Component - for Lesson 1.6 (1/26/23), added onRemoveItem part below */}
     {list.map((item) => (
@@ -300,77 +319,13 @@ const List = ({ list, onRemoveItem }) => (
   </ul>
 );
 
-// Variation 2: Spread and Rest Operators
-// Step 3 (Final step)
-
-// const List = ({ list }) => (
-//   // //Temp console.log to show doesn't re-render since no .useState hook in this function
-//   // console.log('List renders');
-
-//   <ul>
-//     {/* Props can apparently be used here because the props parameter was passed above to the List function, AND as a way to access the "prop[ertie]s" of the parent App component (which I believe became a parent to List when List was instantiated within App); however, removed "props" before "list.map..." b/c did destructured version of props in the "function signature" for the List component above, thereby defining "list" as a property of the "props" object */}
-
-//     {/* Note: "...item" below is a "rest operator", meaning when you call "item" later, it will include the rest of the item object attribute/value pairs EXCEPT the "objectID," because it's listed below right before it */}
-//     {list.map(({ objectID, ...item }) => (
-//       // Spread operator below ("...item") pulls in object from Item component below
-//       <Item key={objectID} {...item} />
-//     ))}
-//   </ul>
-// );
-
-// Variation 2: Spread and Rest Operators
-// Step 2
-
-// const List = ({ list }) => (
-//   // //Temp console.log to show doesn't re-render since no .useState hook in this function
-//   // console.log('List renders');
-
-//   <ul>
-//     {/* Props can apparently be used here because the props parameter was passed above to the List function, AND as a way to access the "prop[ertie]s" of the parent App component (which I believe became a parent to List when List was instantiated within App); however, removed "props" before "list.map..." b/c did destructured version of props in the "function signature" for the List component above, thereby defining "list" as a propery of "props" */}
-//     {list.map((item) => (
-//       // Spread operator below ("...item") pulls in object from Item component below
-//       <Item key={item.objectID} {...item} />
-//     ))}
-//   </ul>
-// );
-
-// Variation 2: Spread and Rest Operators
-// Step 1 (Step 2 above)
-
-// const List = ({ list }) => (
-//   // //Temp console.log to show doesn't re-render since no .useState hook in this function
-//   // console.log('List renders');
-
-//   <ul>
-//     {/* Props can apparently be used here because the props parameter was passed above to the List function, AND as a way to access the "prop[ertie]s" of the parent App component (which I believe became a parent to List when List was instantiated within App); however, removed "props" before "list.map..." b/c did destructured version of props in the "function signature" for the List component above, thereby defining "list" as a propery of "props" */}
-//     {list.map((item) => (
-//       <Item
-//         key={item.objectID}
-//         title={item.title}
-//         url={item.url}
-//         author={item.author}
-//         num_comments={item.num_comments}
-//         points={items.points}
-//       />
-//     ))}
-//   </ul>
-// );
-// };
-
 // ************************************************************************************************************************ //
 // ITEM COMPONENT / FUNCTION //////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
 
-// NOTE: "Variation 1" commented version below used Nested Destructuring, just to learn it, but returned to less refactored version to make easier to understand & to avoid features which aren't familiar to everyone (see p. 67 for more).
-
-// Variation 1: Nested Destructuring (a way to eliminate use of "props" & supposedly make easier to use)
+// Nested Destructuring (to eliminate use of "props" & make easier to use)
 // Added onRemoveItem prop (Lesson 1.6, 1/26/23)
 const Item = ({ item, onRemoveItem }) => {
-  // Added this callback handler to execute the incoming onRemoveItem callback handler, then refactored by adding into button below (Lesson 1.6, 1/26/23).
-  // const handleRemoveItem = () => {
-  //   onRemoveItem(item);
-  // };
-
   return (
     <li>
       <span>
@@ -389,17 +344,5 @@ const Item = ({ item, onRemoveItem }) => {
   );
 };
 
-// // Variation 1: Nested Destructuring (a way to eliminate use of "props" & supposedly make easier to use)
-// const Item = ({ title, url, author, num_comments, points }) => (
-//   <li>
-//     <span>
-//       <a href={url}>{title}</a>
-//     </span>
-//     <span>{author}</span>
-//     <span>{num_comments}</span>
-//     <span>{points}</span>
-//   </li>
-// );
-
-//Some necessary part of React JS file apparently
+// Necessary part of React JS files
 export default App;
