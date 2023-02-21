@@ -2,67 +2,6 @@
 import React, { useState, useEffect, useReducer } from 'react';
 
 // ************************************************************************************************************************ //
-// ARRAY OF STORY OBJECTS (used to be local variable w/in App component, moved out; also used to be a "list" & a global variable)
-// ************************************************************************************************************************ //
-
-// ************************************************************************************************************************ //
-// ************************************************************************************************************************ //
-// COPY FILE & DELETE THIS PART AFTER FINISH THIS LESSON (before committing changes)
-// ************************************************************************************************************************ //
-// ************************************************************************************************************************ //
-
-// "initialStories" created to allow manipulation of list. (Lesson 1-6, 1/26/23); removed entirely in lesson 1-8.
-
-// const initialStories = [
-//   {
-//     title: 'React',
-//     url: 'https://reactjs.org/',
-//     author: 'Jordan Walke',
-//     topic: 'Reactionaries',
-//     num_comments: 3,
-//     points: 4,
-//     objectID: 0,
-//   },
-//   {
-//     title: 'Redux',
-//     url: 'https://redux.js.org/',
-//     author: 'Dan Abramov, Andrew Clark',
-//     topic: 'Sentaries',
-//     num_comments: 2,
-//     points: 5,
-//     objectID: 1,
-//   },
-//   {
-//     title: 'Flummoxed',
-//     url: 'https://life.js.org/',
-//     author: "Brendan O'Connor",
-//     topic: 'Life decisionaries',
-//     num_comments: 17,
-//     points: 5,
-//     objectID: 2,
-//   },
-// ];
-
-// ************************************************************************************************************************ //
-// ASYNC DATA FETCHING ///////////////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
-// Simulation of asynchronous data, will replace later w/real data from an API; "setTimeout" slightly delays the rendering of the list to simulate the real delay that would come w/a network request to a remote API (Lesson 1.7).
-
-// const getAsyncStories = () =>
-//   new Promise((resolve) =>
-//     setTimeout(
-//       () => resolve({ data: { stories: initialStories } }),
-//       2000
-//     )
-//   );
-
-// ************************************************************************************************************************ //
-// ************************************************************************************************************************ //
-// COPY FILE & DELETE THIS PART AFTER FINISH THIS LESSON (before committing changes)
-// ************************************************************************************************************************ //
-// ************************************************************************************************************************ //
-
-// ************************************************************************************************************************ //
 // CUSTOM HOOK (useSemiPersistentState) ///////////////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
 // Needed to provide an initial state for this custom hook. Re-factored later to change terms to be more generic (like changing 'search' to 'value'). Also had to add an "inflexible key" so the value isn't overwritten in local storage.
@@ -211,10 +150,7 @@ const App = () => {
         value={searchTerm}
         // Added isFocused as prop to pass below (1/24/23 update
         isFocused
-        // // Think what we did here is make this into a prop that pulls down the handleSearch function above
-        // onInputChange={handleSearch}
-
-        // Prop to be used in search button (in place of the above, commented-out handler)
+        // Prop to be used in search button
         onInputChange={handleSearchInput}
       >
         <strong>Search: </strong>
