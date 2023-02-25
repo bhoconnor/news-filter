@@ -1,5 +1,6 @@
 // Some import feature for most or all React JS files apparently, pulls from node_modules folder
 import React, { useState, useEffect, useReducer } from 'react';
+import axios from 'axios';
 
 // ************************************************************************************************************************ //
 // CUSTOM HOOK (useSemiPersistentState) ///////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ const storiesSuccess = 'STORIES_FETCH_SUCCESS';
 const storiesFailure = 'STORIES_FETCH_FAILURE';
 const removeStory = 'REMOVE_STORY';
 
-// Allows for more sophisticated State management; reducer functions always use state & action. (Lesson 1.7) REMOVE_STORY works by removing a story item ("story") with a given objectID from the story list if "Dismiss" button is clicked for a state ("action.payload") with that same objectID (using button in Item component); changed to Switch statement in 1.7 too, & then to a Switch that includes loading, errors, success, & removal.
+// Allows for more sophisticated State management; reducer functions always use state & action. (Lesson 1-7) REMOVE_STORY works by removing a story item ("story") with a given objectID from the story list if "Dismiss" button is clicked for a state ("action.payload") with that same objectID (using button in Item component); changed to Switch statement in 1-7 too, & then to a Switch that includes loading, errors, success, & removal.
 const storiesReducer = (state, action) => {
   switch (action.type) {
     case loadingStories:
@@ -81,7 +82,7 @@ const App = () => {
   // State updater, setUrl is updated when search button is clicked
   const [url, setUrl] = useState(`${API_ENDPOINT}${searchTerm}`);
 
-  // Returned values from  array are the current state (stories) and the state updater function (setStories).  (Lesson 1.6, 1/26/23, p. 88 in book); removed "initialStories" as initial state, replaced w/empty array (Lesson 1.7, p. 94); later in 1.7, turned to a useReducer hook, changing "setStories" to "dispatchStories," & passing it storiesReducer function from above; then merged others for loading & errors into useReducer hook.
+  // Returned values from  array are the current state (stories) and the state updater function (setStories).  (Lesson 1-6, 1/26/23, p. 88 in book); removed "initialStories" as initial state, replaced w/empty array (Lesson 1-7, p. 94); later in 1-7, turned to a useReducer hook, changing "setStories" to "dispatchStories," & passing it storiesReducer function from above; then merged others for loading & errors into useReducer hook.
   const [stories, dispatchStories] = useReducer(storiesReducer, {
     data: [],
     isLoading: false,
@@ -91,23 +92,24 @@ const App = () => {
   // ************************************************************************************************************************ //
   // FETCH-RELATED
 
-  // Memoized handler for data fetching (1.8)
-  const handleFetchStories = React.useCallback(() => {
+  // Memoized handler for data fetching (1-8); changed from traditional promise to async in 1-9, including adding a try/catch block for errors.
+  const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: loadingStories });
 
-    fetch(url) // A - Fetch API used to make request, based on API & searchTerm--points to url useState function above
-      .then((response) => response.json()) // B - Translate response into JSON
-      .then((result) => {
-        dispatchStories({
-          type: storiesSuccess,
-          payload: result.hits, // C - Result to send to state reducer, following way data is structured in API
-        });
-      })
-      // .catch is what happens if an error/exception is thrown from above code
-      .catch(() => dispatchStories({ type: storiesFailure }));
+    // try/catch block for errors
+    try {
+      const result = await axios.get(url);
+
+      dispatchStories({
+        type: storiesSuccess,
+        payload: result.data.hits, // C - Result to send to state reducer, following way data is structured in API
+      });
+    } catch {
+      dispatchStories({ type: storiesFailure });
+    }
   }, [url]);
 
-  // useEffect hook to call getAsyncStories & resolve returned promise as a side-effect; and b/c has an empty dependency array, will only run after component runs for 1st time (Lesson 1.7), but changed that to searchTerm dependency in 1.8; later in 1.7 changed setStories to dispatchStories & added type & payload. In. 1.8, added steps to search based on searchTerm, then changed to point to handleFetchStories above.
+  // useEffect hook to call getAsyncStories & resolve returned promise as a side-effect; and b/c has an empty dependency array, will only run after component runs for 1st time (Lesson 1-7), but changed that to searchTerm dependency in 1-8; later in 1-7 changed setStories to dispatchStories & added type & payload. In. 1-8, added steps to search based on searchTerm, then changed to point to handleFetchStories above.
   useEffect(() => {
     handleFetchStories();
   }, [handleFetchStories]);
@@ -115,7 +117,7 @@ const App = () => {
   // ************************************************************************************************************************ //
   // DISMISS FUNCTION
 
-  // Remove a story item ("story") with a given objectID from the story list if "Dismiss" button is clicked for an item ("item") with that same objectID (using button in Item component below) (Lesson 1.6, 1/26/23); in 1.7 changes setStories to dispatchStories for useReducer hook; also in 1.7 moved filter for this function into reducer function above.
+  // Remove a story item ("story") with a given objectID from the story list if "Dismiss" button is clicked for an item ("item") with that same objectID (using button in Item component below) (Lesson 1-6, 1/26/23); in 1-7 changes setStories to dispatchStories for useReducer hook; also in 1-7 moved filter for this function into reducer function above.
   const handleRemoveStory = (item) => {
     dispatchStories({
       type: removeStory,
@@ -132,46 +134,33 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  // Handler for button submission, sets State above via setUrl
-  const handleSearchSubmit = () => {
+  // Handler for button submission, sets State above via setUrl; added preventDefault in 1-9 to avoid auto-refresh after submission.
+  const handleSearchSubmit = (event) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
+
+    event.preventDefault();
   };
 
   return (
     <div>
       <h1>
-        <strong>NewsFilt</strong>: A Hacker News Stories Filter
+        NewsFilt: <em>A Hacker News Stories Filter</em>
       </h1>
 
       {/* ************************************************************************************************************************ */}
-      {/*  INPUT WITH LABEL: Instantiation of <InputWithLabel/> Component */}
-      {/* Below was previously instantiating a component called "Search," but to make component reusable, changed to "InputWithLabel" & defined the id & label attributes within it (they were previously defined within the Search component instead of in the instantiation); also changed "search" to "value" & "onSearch" to "onInputChange"--again, to make more broadly usable for different input situations. (Lesson 1.6, 1/11/23 update) */}
-      <InputWithLabel
-        id="search"
-        label="Search"
-        value={searchTerm}
-        // Added isFocused as prop to pass below (1/24/23 update
-        isFocused
-        // Prop to be used in search button
-        onInputChange={handleSearchInput}
-      >
-        <strong>Search: </strong>
-      </InputWithLabel>
+      {/* SEARCH FORM: Instantiation of <SearchForm/> Component */}
 
-      {/* Search button */}
-      <button
-        type="button"
-        disabled={!searchTerm}
-        onClick={handleSearchSubmit}
-      >
-        Submit
-      </button>
+      <SearchForm
+        searchTerm={searchTerm}
+        onSearchInput={handleSearchInput}
+        onSearchSubmit={handleSearchSubmit}
+      />
 
       <hr />
 
       {/* ************************************************************************************************************************ */}
       {/* LIST: Instantiation of <List/> Component - Draws from above filter so only shows stories that are searched */}
-      {/* Added onRemoveItem below (Lesson 1.6), & isError & isLoading (Lesson 1.7), then stories.data (Lesson 1.8) */}
+      {/* Added onRemoveItem below (Lesson 1-6), & isError & isLoading (Lesson 1-7), then stories.data (Lesson 1-8) */}
       {stories.isError && <p>Something went wrong...</p>}
 
       {stories.isLoading ? (
@@ -183,6 +172,38 @@ const App = () => {
   );
 };
 
+// ************************************************************************************************************************ //
+// SEARCH FORM COMPONENT / FUNCTION //////////////////////////////////////////////////////
+// ************************************************************************************************************************ //
+
+// Below was previously instantiating a component called "Search," but to make component reusable, changed to "InputWithLabel" & defined the id & label attributes within it (they were previously defined within the Search component instead of in the instantiation); also changed "search" to "value" & "onSearch" to "onInputChange"--again, to make more broadly usable for different input situations. (Lesson 1-6, 1/11/23 update); added <form> element in 1-9, moving submit into that instead of button
+
+const SearchForm = ({
+  searchTerm,
+  onSearchInput,
+  onSearchSubmit,
+}) => (
+  <form onSubmit={onSearchSubmit}>
+    {/* ************************************************************************************************************************ 
+    INPUT WITH LABEL: Instantiation of <InputWithLabel/> Component  */}
+    <InputWithLabel
+      id="search"
+      label="Search"
+      value={searchTerm}
+      // Added isFocused as prop to pass below (1/24/23 update
+      isFocused
+      // Prop to be used in search button
+      onInputChange={onSearchInput}
+    >
+      <strong>Search: </strong>
+    </InputWithLabel>
+
+    {/* Search button */}
+    <button type="submit" disabled={!searchTerm}>
+      Submit
+    </button>
+  </form>
+);
 // ************************************************************************************************************************ //
 // INPUTWITHLABEL COMPONENT / FUNCTION //////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
@@ -215,7 +236,6 @@ const InputWithLabel = ({
     <>
       <label htmlFor={id}>{children}</label>
       &nbsp;
-      {/* This "passes up the event to the App component via a callback handler after the text is entered into the HTML input field" */}
       {/* B: Pass React useRef hook ("inputRef") to JSX-reserved ref attribute */}
       <input
         ref={inputRef}
@@ -224,7 +244,6 @@ const InputWithLabel = ({
         type={type}
         // Because we destructured props object above (in "function signature" for Search component), we can just use "search" & "onSearch" below, otherwise would've needed "props.search" & "props.onSearch" below; later changed to "value" & "onInputChange" to make more reusable.
         value={value}
-        // Set autofocus for input label using "imperative programming in React" (1/23/2023 update)
         // Changed to isFocused to use as prop from above (1/24/2023 update)
         autoFocus={isFocused}
         onChange={onInputChange}
@@ -238,15 +257,12 @@ const InputWithLabel = ({
 // ************************************************************************************************************************ //
 // Function pulls from Item function below to automatically populate aspects of each <li> item in <ul> below
 
-// Added onRemoveItem as prop below, to then pass to Item component (Lession 1.6, 1/26/23).
+// Added onRemoveItem as prop below, to then pass to Item component (Lession 1-6, 1/26/23).
 
 const List = ({ list, onRemoveItem }) => (
-  // //Temp console.log to show doesn't re-render since no .useState hook in this function
-  // console.log('List renders');
-
   <ul>
     {/* ************************************************************************************************************************ */}
-    {/* Instantiation of <Item/> Component - for Lesson 1.6 (1/26/23), added onRemoveItem part below */}
+    {/* Instantiation of <Item/> Component - for Lesson 1-6 (1/26/23), added onRemoveItem part below */}
     {list.map((item) => (
       <Item
         key={item.objectID}
@@ -261,8 +277,7 @@ const List = ({ list, onRemoveItem }) => (
 // ITEM COMPONENT / FUNCTION //////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
 
-// Nested Destructuring (to eliminate use of "props" & make easier to use)
-// Added onRemoveItem prop (Lesson 1.6, 1/26/23)
+// Added onRemoveItem prop (Lesson 1-6, 1/26/23)
 const Item = ({ item, onRemoveItem }) => {
   return (
     <li>
@@ -272,7 +287,7 @@ const Item = ({ item, onRemoveItem }) => {
       <span>{item.author}</span>
       <span>{item.num_comments}</span>
       <span>{item.points}</span>
-      {/*  Added button to remove item, then added onRemoveItem function in "inline handler" in button for more elegant fix than separate callback handler commented out above (Lesson 1.6, 1/26/23). */}
+      {/*  Button to remove item via inline handler in button */}
       <span>
         <button type="button" onClick={() => onRemoveItem(item)}>
           Dismiss
