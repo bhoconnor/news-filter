@@ -2,6 +2,11 @@
 import React, { useState, useEffect, useReducer } from 'react';
 import axios from 'axios';
 
+import styles from './App.module.css';
+
+// For getting around using template literals when assigning multiple styles to a single element
+import cs from 'classnames';
+
 // ************************************************************************************************************************ //
 // CUSTOM HOOK (useSemiPersistentState) ///////////////////////////////////////////////////////////////
 // ************************************************************************************************************************ //
@@ -142,8 +147,8 @@ const App = () => {
   };
 
   return (
-    <div>
-      <h1>
+    <div className={styles.container}>
+      <h1 className={styles.headlinePrimary}>
         NewsFilt: <em>A Hacker News Stories Filter</em>
       </h1>
 
@@ -155,8 +160,6 @@ const App = () => {
         onSearchInput={handleSearchInput}
         onSearchSubmit={handleSearchSubmit}
       />
-
-      <hr />
 
       {/* ************************************************************************************************************************ */}
       {/* LIST: Instantiation of <List/> Component - Draws from above filter so only shows stories that are searched */}
@@ -183,7 +186,7 @@ const SearchForm = ({
   onSearchInput,
   onSearchSubmit,
 }) => (
-  <form onSubmit={onSearchSubmit}>
+  <form onSubmit={onSearchSubmit} className={styles.searchForm}>
     {/* ************************************************************************************************************************ 
     INPUT WITH LABEL: Instantiation of <InputWithLabel/> Component  */}
     <InputWithLabel
@@ -199,7 +202,12 @@ const SearchForm = ({
     </InputWithLabel>
 
     {/* Search button */}
-    <button type="submit" disabled={!searchTerm}>
+    <button
+      type="submit"
+      disabled={!searchTerm}
+      // Uses classnames library imported above for easier multi-style assignment to a single element
+      className={cs(styles.button, styles.buttonLarge)}
+    >
       Submit
     </button>
   </form>
@@ -228,13 +236,15 @@ const InputWithLabel = ({
       // D: "... since the ref is passed to the input field’s ref attribute, its current property gives access to the element. Execute its focus programmatically as a side-effect, but only if isFocused is set AND the current property is existent"
       inputRef.current.focus();
     }
-    // Dependency array--I believe if isFocused updates, then the effect will run again (more here: https://www.w3schools.com/react/react_useeffect.asp)
+    // Dependency array--if isFocused updates, effect will run again (more here: https://www.w3schools.com/react/react_useeffect.asp)
   }, [isFocused]);
 
   return (
     // Changed from "{label}" below to "{children}" after placing "Search" in between <InputWithLabel> and a new closing </InputWithLabel> tag.
     <>
-      <label htmlFor={id}>{children}</label>
+      <label htmlFor={id} className={styles.label}>
+        {children}
+      </label>
       &nbsp;
       {/* B: Pass React useRef hook ("inputRef") to JSX-reserved ref attribute */}
       <input
@@ -247,6 +257,7 @@ const InputWithLabel = ({
         // Changed to isFocused to use as prop from above (1/24/2023 update)
         autoFocus={isFocused}
         onChange={onInputChange}
+        className={styles.input}
       />
     </>
   );
@@ -280,16 +291,21 @@ const List = ({ list, onRemoveItem }) => (
 // Added onRemoveItem prop (Lesson 1-6, 1/26/23)
 const Item = ({ item, onRemoveItem }) => {
   return (
-    <li>
-      <span>
+    <li className={styles.item}>
+      <span style={{ width: '40%' }}>
         <a href={item.url}>{item.title}</a>
       </span>
-      <span>{item.author}</span>
-      <span>{item.num_comments}</span>
-      <span>{item.points}</span>
+      <span style={{ width: '30%' }}>{item.author}</span>
+      <span style={{ width: '10%' }}>{item.num_comments}</span>
+      <span style={{ width: '10%' }}>{item.points}</span>
       {/*  Button to remove item via inline handler in button */}
-      <span>
-        <button type="button" onClick={() => onRemoveItem(item)}>
+      <span style={{ width: '10%' }}>
+        <button
+          type="button"
+          onClick={() => onRemoveItem(item)}
+          // Uses template literal syntax to add multiple CSS classes (can also use classnames library imported above, but leaving to show both)
+          className={`${styles.button} ${styles.button_small}`}
+        >
           Dismiss
         </button>
       </span>
