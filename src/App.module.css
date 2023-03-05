@@ -24,8 +24,21 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Link styling */
+.appLink {
+  color: #4d641e;
+}
+
+.appLink:visited {
+  color: #747c695d;
+}
+
+.appLink:hover {
+  color: #f3fb61;
+}
+
+.appLink:focus {
+  color: #f3fb61;
 }
 
 /* Built container to put around whole page */
@@ -37,6 +50,7 @@
   background: #83a4d4; /* fallback for old browsers */
   background: linear-gradient(to left, #b6fbff, #83a4d4);
 
+  /* Text default color */
   color: #171212;
 }
 
@@ -69,7 +83,6 @@
 /* Formatting for buttons */
 .button {
   background: transparent;
-  border: 1px solid #171212;
   padding: 5px;
   cursor: pointer;
 
@@ -77,7 +90,8 @@
 }
 
 .button:hover {
-  background: #171212;
+  background: gray;
+  stroke: #ffffff;
   color: #ffffff;
 }
 
@@ -87,18 +101,20 @@
 
 /* Adding margin-left for now though not in textbook */
 .buttonLarge {
+  border: 1px solid #171212;
   padding: 10px;
   margin-left: 10px;
 }
 
 /* Search form, labels & input */
+/* Search form */
 .searchForm {
   padding: 10px 0 20px 0;
   display: flex;
   align-items: baseline;
 }
 
-/* Added bottom & right borders for now, even though not in textbook */
+/* Labels--added bottom & right borders for now, even though not in textbook */
 .label {
   border-top: 1px solid #171212;
   border-bottom: 1px solid #171212;
@@ -108,7 +124,7 @@
   font-size: 24px;
 }
 
-/* Added top, left, & right borders for now, even though not in textbook */
+/* Input--added top, left, & right borders for now, even though not in textbook */
 .input {
   border: none;
   border-top: 1px solid #171212;

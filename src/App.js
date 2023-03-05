@@ -1,11 +1,34 @@
 // Some import feature for most or all React JS files apparently, pulls from node_modules folder
 import React, { useState, useEffect, useReducer } from 'react';
 import axios from 'axios';
-
+// CSS Modules stylesheet
 import styles from './App.module.css';
-
-// For getting around using template literals when assigning multiple styles to a single element
+// CSS Styled Components
+import styled from 'styled-components';
+// For getting around template literals for assigning multiple styles
 import cs from 'classnames';
+// For SVG
+import { ReactComponent as Check } from './check.svg';
+
+// Variables for CSS Styled Components
+const StyledItem = styled.li`
+  display: flex;
+  align-items: center;
+  padding-bottom: 5px;
+`;
+
+const StyledColumn = styled.span`
+  padding: 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  a {
+    color: inherit;
+  }
+  width: ${(props) => props.width};
+`;
 
 // ************************************************************************************************************************ //
 // CUSTOM HOOK (useSemiPersistentState) ///////////////////////////////////////////////////////////////
@@ -289,29 +312,36 @@ const List = ({ list, onRemoveItem }) => (
 // ************************************************************************************************************************ //
 
 // Added onRemoveItem prop (Lesson 1-6, 1/26/23)
-const Item = ({ item, onRemoveItem }) => {
-  return (
-    <li className={styles.item}>
-      <span style={{ width: '40%' }}>
-        <a href={item.url}>{item.title}</a>
-      </span>
-      <span style={{ width: '30%' }}>{item.author}</span>
-      <span style={{ width: '10%' }}>{item.num_comments}</span>
-      <span style={{ width: '10%' }}>{item.points}</span>
-      {/*  Button to remove item via inline handler in button */}
-      <span style={{ width: '10%' }}>
-        <button
-          type="button"
-          onClick={() => onRemoveItem(item)}
-          // Uses template literal syntax to add multiple CSS classes (can also use classnames library imported above, but leaving to show both)
-          className={`${styles.button} ${styles.button_small}`}
-        >
-          Dismiss
-        </button>
-      </span>
-    </li>
-  );
-};
+const Item = ({ item, onRemoveItem }) => (
+  // Replaced regular element tags with variables for styled components, StyledItem  (for <li>) & Styled Column (for <span>) (Lesson 3.1)
+  <StyledItem>
+    <StyledColumn width="40%">
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noreferrer"
+        className={styles.appLink}
+      >
+        {item.title}
+      </a>
+    </StyledColumn>
+    <StyledColumn width="30%">{item.author}</StyledColumn>
+    <StyledColumn width="10%">{item.num_comments}</StyledColumn>
+    <StyledColumn width="10%">{item.points}</StyledColumn>
+    {/*  Button to remove item via inline handler in button */}
+    <StyledColumn width="10%">
+      <button
+        type="button"
+        onClick={() => onRemoveItem(item)}
+        // Uses template literal syntax to add multiple CSS classes (can also use classnames library imported above, but leaving to show both)
+        className={`${styles.button} ${styles.button_small}`}
+      >
+        {/* Used SVG import for checkbox in place of text for button (Lesson 3.1) */}
+        <Check height="18px" width="18px" />
+      </button>
+    </StyledColumn>
+  </StyledItem>
+);
 
 // Necessary part of React JS files
 export default App;
