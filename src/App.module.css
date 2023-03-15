@@ -1,27 +1,165 @@
-.App {
-  text-align: center;
+/* *********************************************************** */
+/* TO FINISH STILL: Make items responsive in mobile, filling page, see .ul below
+/* *********************************************************** */
+
+/* *********************************************************** */
+/* CONTAINER */
+/* *********************************************************** */
+
+/* Built container to put around whole page */
+.container {
+  height: 100vw;
+  max-width: 100%;
+  padding-bottom: 5%;
+  margin-top: -25px;
+
+  /* Background & other colors
+  background: #83a4d4; 
+  /* fallback for old browsers */
+  /* background: linear-gradient(to left, #b6fbff, #83a4d4);
+ */
+  /* Text default color */
+  color: #171212;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* ********************* MEDIA QUERY - Laptops  ********************* */
+/* Container *****************************/
+@media screen and (min-width: 950px) {
+  .container {
+    padding: 0px;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* *********************************************************** */
+/* HEADER & SEARCH FORM */
+/* *********************************************************** */
+
+/* Headline text formatting */
+.headlinePrimary {
+  font-size: 2.2em;
+  font-weight: 300;
+  letter-spacing: 2px;
+  padding: 25px;
+  padding-left: 50px;
+  margin-left: -20px;
+  margin-right: -40px;
+  margin-bottom: 0.5em;
+
+  /* Fallback for old browsers */
+  background: #f3fb61;
+  background: radial-gradient(#f3fb61, #b8c417);
+}
+
+/* ********************* MEDIA QUERY - Laptops  ********************* */
+/* Headline *****************************/
+@media screen and (min-width: 950px) {
+  /* Headline */
+  .headlinePrimary {
+    font-size: 4.4em;
+    padding: 0.5em;
+    padding-top: 1em;
+    margin-top: 0em;
+  }
+}
+
+/* Search form, labels & input *****************************/
+/* Search form */
+.searchForm {
+  display: flex;
+  align-items: center;
+
+  margin-left: 5px;
+  padding: 10px 0 0 0;
+}
+
+/* Labels */
+.label {
+  border-radius: 10%;
+  margin-left: 20px;
+  margin-right: 5px;
+  padding: 7px;
+
+  font-size: 20px;
+  /* Fallback for old browsers */
+  background: #f3fb61;
+  background: radial-gradient(#e4eb69, #b0b63f);
+}
+
+/* Input */
+.input {
+  background-color: transparent;
+
+  border: none;
+  border-top: 1px solid #171212;
+  border-bottom: 1px solid #171212;
+  border-left: 1px solid #171212;
+  border-right: 1px solid #171212;
+  width: 160px;
+
+  font-size: 20px;
+}
+
+/* ********************* MEDIA QUERY - Laptops  ********************* */
+@media screen and (min-width: 950px) {
+  /* Search form, labels & input */
+  .searchForm {
+    padding: 10px 0 20px 0;
+  }
+
+  .label {
+    font-size: 24px;
+  }
+
+  .input {
+    width: auto;
+  }
+}
+
+/* *********************************************************** */
+/* LIST */
+/* *********************************************************** */
+
+/* List OVERALL formatting */
+
+/* Doesn't seem to be doing anything, need to work on it to wrap in mobile */
+/* .ul {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  text-align: left;
+} */
+
+/* Column label spans */
+.liColumnLabels > span {
+  font-weight: bold;
+}
+
+/* Remove button span */
+.liRemove {
   display: flex;
   flex-direction: column;
+  align-items: baseline;
+  flex-shrink: 7;
+}
+
+/* Item component formatting */
+.item {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding-bottom: 5px;
+}
+
+.item > span {
+  padding: 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.item > span > a {
+  color: inherit;
 }
 
 /* Link styling */
@@ -41,62 +179,38 @@
   color: #f3fb61;
 }
 
-/* Built container to put around whole page */
-.container {
-  height: 100vw;
-  padding: 20px;
-
-  /* Background & other colors */
-  background: #83a4d4; /* fallback for old browsers */
-  background: linear-gradient(to left, #b6fbff, #83a4d4);
-
-  /* Text default color */
-  color: #171212;
+/* ********************* MEDIA QUERY - Laptops  ********************* */
+@media screen and (min-width: 950px) {
+  /* ul */
+  .ul {
+    flex-wrap: wrap;
+  }
 }
 
-/* Headline text formatting */
-.headlinePrimary {
-  font-size: 48px;
-  font-weight: 300;
-  letter-spacing: 2px;
-}
+/* *********************************************************** */
+/* BUTTONS */
+/* *********************************************************** */
 
-/* Item component formatting */
-.item {
-  display: flex;
-  align-items: center;
-  padding-bottom: 5px;
-}
-
-.item > span {
-  padding: 0 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.item > span > a {
-  color: inherit;
-}
-
-/* Formatting for buttons */
 .button {
   background: transparent;
   padding: 5px;
   cursor: pointer;
+  border: transparent;
 
   transition: all 0.1s ease-in;
 }
 
 .button:hover {
-  background: gray;
+  background: rgb(113, 112, 112);
   stroke: #ffffff;
   color: #ffffff;
 }
 
 .buttonSmall {
   padding: 5px;
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
 }
 
 /* Adding margin-left for now though not in textbook */
@@ -106,46 +220,39 @@
   margin-left: 10px;
 }
 
-/* Search form, labels & input */
-/* Search form */
-.searchForm {
-  padding: 10px 0 20px 0;
-  display: flex;
-  align-items: baseline;
-}
+/* ORIGINAL CSS LANGUAGE FROM HACKER-STORIES THAT DIDN'T HAVE CORRESPONDING CLASSES IN COMPONENTS */
 
-/* Labels--added bottom & right borders for now, even though not in textbook */
-.label {
-  border-top: 1px solid #171212;
-  border-bottom: 1px solid #171212;
-  border-left: 1px solid #171212;
-  border-right: 1px solid #171212;
-  padding-left: 5px;
-  font-size: 24px;
-}
-
-/* Input--added top, left, & right borders for now, even though not in textbook */
-.input {
-  border: none;
-  border-top: 1px solid #171212;
-  border-bottom: 1px solid #171212;
-  border-left: 1px solid #171212;
-  border-right: 1px solid #171212;
-  background-color: transparent;
-
-  font-size: 24px;
-}
-
-/* Below didn't work, same for padding-left */
-/* h1 {
-  margin-left: 1000px;
-} */
-
-@keyframes App-logo-spin {
+/* @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
   }
+} */
+
+/* .App {
+  text-align: center;
 }
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+} */
+
+/* @media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+} */
+/* 
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+} */
