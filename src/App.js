@@ -1,4 +1,7 @@
-// Some import feature for most or all React JS files apparently, pulls from node_modules folder
+//*************************************** //
+// IMPORTS ////
+//*************************************** //
+
 import React, { useState, useEffect, useReducer } from 'react';
 import axios from 'axios';
 // CSS Modules stylesheet
@@ -9,8 +12,13 @@ import styled from 'styled-components';
 import cs from 'classnames';
 // For SVG
 import { ReactComponent as Check } from './check.svg';
+//  For sorting
+import { sortBy } from 'lodash';
 
+//*************************************** //
 // Variables for CSS Styled Components
+//*************************************** //
+
 const StyledItem = styled.li`
   display: flex;
   align-items: center;
@@ -30,9 +38,9 @@ const StyledColumn = styled.span`
   width: ${(props) => props.width};
 `;
 
-// ************************************************************************************************************************ //
-// CUSTOM HOOK (useSemiPersistentState) ///////////////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+//*************************************** //
+// CUSTOM HOOK (useSemiPersistentState) ////
+//*************************************** //
 // Needed to provide an initial state for this custom hook. Re-factored later to change terms to be more generic (like changing 'search' to 'value'). Also had to add an "inflexible key" so the value isn't overwritten in local storage.
 const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = useState(
@@ -47,9 +55,9 @@ const useSemiPersistentState = (key, initialState) => {
   return [value, setValue];
 };
 
-// ************************************************************************************************************************ //
-// USE REDUCER HOOK ///////////////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+//*************************************** //
+// USE REDUCER HOOK ///////////////////////////////////////
+//*************************************** //
 // Variables for Reducer
 const loadingStories = 'STORIES_FETCH_INIT';
 const storiesSuccess = 'STORIES_FETCH_SUCCESS';
@@ -89,16 +97,16 @@ const storiesReducer = (state, action) => {
       throw new Error();
   }
 };
-// ************************************************************************************************************************ //
+//*************************************** //
 // API ENDPOINT
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
-// ************************************************************************************************************************ //
-// APP COMPONENT / FUNCTION //////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+//*************************************** //
+// APP COMPONENT / FUNCTION ////////////////////////////////////
+//*************************************** //
 const App = () => {
-  // ************************************************************************************************************************ //
+  //*************************************** //
   // STATE (useState & useReducer): Various situations dealing with State below (also in "Custom Hook" above, near top)
 
   // NEW version of search feature's state (with custom hook, "useSemiPersistentState") (also sets default value to "React" if no recent value in search box)
@@ -117,7 +125,7 @@ const App = () => {
     isError: false,
   });
 
-  // ************************************************************************************************************************ //
+  //*************************************** //
   // FETCH-RELATED
 
   // Memoized handler for data fetching (1-8); changed from traditional promise to async in 1-9, including adding a try/catch block for errors.
@@ -142,7 +150,7 @@ const App = () => {
     handleFetchStories();
   }, [handleFetchStories]);
 
-  // ************************************************************************************************************************ //
+  //*************************************** //
   // DISMISS FUNCTION
 
   // Remove a story item ("story") with a given objectID from the story list if "Dismiss" button is clicked for an item ("item") with that same objectID (using button in Item component below) (Lesson 1-6, 1/26/23); in 1-7 changes setStories to dispatchStories for useReducer hook; also in 1-7 moved filter for this function into reducer function above.
@@ -153,7 +161,7 @@ const App = () => {
     });
   };
 
-  // ************************************************************************************************************************ //
+  //*************************************** //
   // SETTING & SUBMITTING SEARCH TERM
 
   // Callback function that sets search term based on input
@@ -172,10 +180,11 @@ const App = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.headlinePrimary}>
-        NewsFilt: <em>A Hacker News Stories Filter</em>
+        <strong>NewsFilt</strong>:{' '}
+        <em>A Hacker News Stories Filter</em>
       </h1>
 
-      {/* ************************************************************************************************************************ */}
+      {/* *************************************************************** */}
       {/* SEARCH FORM: Instantiation of <SearchForm/> Component */}
 
       <SearchForm
@@ -184,7 +193,7 @@ const App = () => {
         onSearchSubmit={handleSearchSubmit}
       />
 
-      {/* ************************************************************************************************************************ */}
+      {/* *************************************************************** */}
       {/* LIST: Instantiation of <List/> Component - Draws from above filter so only shows stories that are searched */}
       {/* Added onRemoveItem below (Lesson 1-6), & isError & isLoading (Lesson 1-7), then stories.data (Lesson 1-8) */}
       {stories.isError && <p>Something went wrong...</p>}
@@ -198,9 +207,9 @@ const App = () => {
   );
 };
 
-// ************************************************************************************************************************ //
-// SEARCH FORM COMPONENT / FUNCTION //////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+//*************************************** //
+// SEARCH FORM COMPONENT / FUNCTION /////////////////////////////////////
+//*************************************** //
 
 // Below was previously instantiating a component called "Search," but to make component reusable, changed to "InputWithLabel" & defined the id & label attributes within it (they were previously defined within the Search component instead of in the instantiation); also changed "search" to "value" & "onSearch" to "onInputChange"--again, to make more broadly usable for different input situations. (Lesson 1-6, 1/11/23 update); added <form> element in 1-9, moving submit into that instead of button
 
@@ -210,8 +219,8 @@ const SearchForm = ({
   onSearchSubmit,
 }) => (
   <form onSubmit={onSearchSubmit} className={styles.searchForm}>
-    {/* ************************************************************************************************************************ 
-    INPUT WITH LABEL: Instantiation of <InputWithLabel/> Component  */}
+    {/* ******************************************** */}
+    {/* INPUT WITH LABEL Instantiation */}
     <InputWithLabel
       id="search"
       label="Search"
@@ -235,9 +244,9 @@ const SearchForm = ({
     </button>
   </form>
 );
-// ************************************************************************************************************************ //
-// INPUTWITHLABEL COMPONENT / FUNCTION //////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+//*************************************** //
+// INPUTWITHLABEL COMPONENT / FUNCTION /////////////////////////
+//*************************************** //
 
 // Previously added "search" & "onSearch" below to destructure props object (basically defines 2 properties of props object).
 // Changed "Search" to "InputWithLabel" to make more broadly usable as a component; also changed some other terms, like the destructured props, while also adding "id" & "label." (1/11/2023 update)
@@ -286,35 +295,86 @@ const InputWithLabel = ({
   );
 };
 
-// ************************************************************************************************************************ //
-// LIST COMPONENT / FUNCTION //////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+//*************************************** //
+// LIST COMPONENT / FUNCTION ////////////////////////////////////////////////
+//*************************************** //
+// Sort variable object w/all sortKey & sort function mappings
+const SORTS = {
+  NONE: (list) => list,
+  TITLE: (list) => sortBy(list, 'title'),
+  AUTHOR: (list) => sortBy(list, 'author'),
+  COMMENT: (list) => sortBy(list, 'num_comments').reverse(),
+  POINT: (list) => sortBy(list, 'points').reverse(),
+};
+
 // Function pulls from Item function below to automatically populate aspects of each <li> item in <ul> below
+// Added onRemoveItem as prop below to pass to Item component (Lession 1-6).
 
-// Added onRemoveItem as prop below, to then pass to Item component (Lession 1-6, 1/26/23).
+const List = ({ list, onRemoveItem }) => {
+  // ********************************************
+  // Sort state & functions
 
-const List = ({ list, onRemoveItem }) => (
-  <ul>
-    {/* ************************************************************************************************************************ */}
-    {/* Instantiation of <Item/> Component - for Lesson 1-6 (1/26/23), added onRemoveItem part below */}
-    {list.map((item) => (
-      <Item
-        key={item.objectID}
-        item={item}
-        onRemoveItem={onRemoveItem}
-      />
-    ))}
-  </ul>
-);
+  // State, starts w/'NONE', meaning 1st displays in order of API fetch
+  const [sort, setSort] = useState('NONE');
 
-// ************************************************************************************************************************ //
-// ITEM COMPONENT / FUNCTION //////////////////////////////////////////////////////
-// ************************************************************************************************************************ //
+  // Handler to set sort
+  const handleSort = (sortKey) => {
+    setSort(sortKey);
+  };
+
+  // To sort the list before mapping it
+  const sortFunction = SORTS[sort];
+  const sortedList = sortFunction(list);
+
+  return (
+    <ul>
+      {/* ******************************************** */}
+      {/* Instantiation of <Item/> Component - for Lesson 1-6 (1/26/23), added onRemoveItem part below; added buttons for sorting in 5-1 */}
+      <li
+        style={{ display: 'flex' }}
+        className={styles.liColumnLabels}
+      >
+        <span style={{ width: '40%' }}>
+          <button type="button" onClick={() => handleSort('TITLE')}>
+            Title
+          </button>
+        </span>
+        <span style={{ width: '30%' }}>
+          <button type="button" onClick={() => handleSort('AUTHOR')}>
+            Author
+          </button>
+        </span>
+        <span style={{ width: '10%' }}>
+          <button type="button" onClick={() => handleSort('COMMENT')}>
+            Comments
+          </button>
+        </span>
+        <span style={{ width: '10%' }}>
+          <button type="button" onClick={() => handleSort('POINT')}>
+            Points
+          </button>
+        </span>
+        <span style={{ width: '10%' }}>Remove</span>
+      </li>
+      {sortedList.map((item) => (
+        <Item
+          key={item.objectID}
+          item={item}
+          onRemoveItem={onRemoveItem}
+        />
+      ))}
+    </ul>
+  );
+};
+
+//*************************************** //
+// ITEM COMPONENT / FUNCTION ////////////////////////////////////////////
+//*************************************** //
 
 // Added onRemoveItem prop (Lesson 1-6, 1/26/23)
 const Item = ({ item, onRemoveItem }) => (
   // Replaced regular element tags with variables for styled components, StyledItem  (for <li>) & Styled Column (for <span>) (Lesson 3.1)
-  <StyledItem>
+  <StyledItem style={{}}>
     <StyledColumn width="40%">
       <a
         href={item.url}
@@ -329,7 +389,7 @@ const Item = ({ item, onRemoveItem }) => (
     <StyledColumn width="10%">{item.num_comments}</StyledColumn>
     <StyledColumn width="10%">{item.points}</StyledColumn>
     {/*  Button to remove item via inline handler in button */}
-    <StyledColumn width="10%">
+    <StyledColumn width="10%" className={styles.liRemove}>
       <button
         type="button"
         onClick={() => onRemoveItem(item)}
